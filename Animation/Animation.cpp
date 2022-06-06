@@ -43,7 +43,7 @@ int main()
     // magnitude
     {
         SVector a(1.f, 1.f, 1.f);
-        cout << "Magnitude: ";
+        cout << "Magnitude: " << a.Magnitude() << endl;
         PrintVector(a);
     }
     

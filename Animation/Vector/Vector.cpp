@@ -18,6 +18,7 @@ SVector::SVector(const float& x, const float& y, const float& z)
 SVector::SVector(const __m128& value)
     : storage{value}
 {
+    ResetUnusedAxis();
 }
 
 /*            Addition            */
