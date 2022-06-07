@@ -2,6 +2,7 @@
 
 #include <pmmintrin.h>
 #include <math.h>
+#include <sstream>
 
 const SVector SVector::ZeroVector{ 0.f };
 
@@ -19,6 +20,36 @@ SVector::SVector(const __m128& value)
     : storage{value}
 {
     ResetUnusedAxis();
+}
+
+/*            Equality            */
+bool SVector::operator==(const SVector& rhs)
+{
+    UVector result;
+    result.storage = _mm_cmpeq_ps(storage, rhs.storage);
+    return result.components[0] && result.components[1] && result.components[2] && result.components[3];
+}
+
+bool operator==(const SVector& lhs, const SVector& rhs)
+{
+    UVector result;
+    result.storage = _mm_cmpeq_ps(lhs.storage, rhs.storage);
+    return result.components[0] && result.components[1] && result.components[2] && result.components[3];
+}
+
+/*            Inequality            */
+bool SVector::operator!=(const SVector& rhs)
+{
+    UVector result;
+    result.storage = _mm_cmpneq_ps(storage, rhs.storage);
+    return result.components[3] || result.components[2] || result.components[1] || result.components[0];
+}
+
+bool operator!=(const SVector& lhs, const SVector& rhs)
+{
+    UVector result;
+    result.storage = _mm_cmpneq_ps(lhs.storage, rhs.storage);
+    return result.components[3] || result.components[2] || result.components[1] || result.components[0];
 }
 
 /*            Addition            */
@@ -141,6 +172,28 @@ SVector operator/(const float& value, const SVector& vec)
     return result;
 }
 
+/*            ToString            */
+template <typename Q> static std::wstring ToString(const Q& q);
+template <typename Q> static std::wstring ToString(const Q* q);
+template <typename Q> static std::wstring ToString(Q* q);
+
+template<> static std::wstring ToString<SVector>(const SVector& v)
+{
+    std::wostringstream line;
+    line.precision(8);
+    line << "x: " << v.GetX() << "y: " << v.GetY() << "z: " << v.GetZ() << "Unused: " << v.GetUnusedAxis();
+    return std::wstring(line.str());
+}
+
+template<> static std::wstring ToString<SVector>(const SVector* v)
+{
+    return ToString<SVector>(*v);
+}
+
+template<> static std::wstring ToString<SVector>(SVector* v)
+{
+    return ToString<SVector>(*v);
+}
 
 float SVector::Magnitude() const
 {

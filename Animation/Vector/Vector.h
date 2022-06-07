@@ -1,6 +1,7 @@
 #pragma once
 
 #include <xmmintrin.h>
+#include <string>
 
 union UVector
 {
@@ -36,7 +37,12 @@ struct SVector
     inline void ResetUnusedAxis() { components[_U_INDEX] = 0.f; };
 
     const static SVector ZeroVector;
-
+    // Equality
+    bool operator==(const SVector& rhs);
+    friend bool operator==(const SVector& lhs, const SVector& rhs);
+    // Inequality
+    bool operator!=(const SVector& rhs);
+    friend bool operator!=(const SVector& lhs, const SVector& rhs);
     // Addition
     SVector& operator+=(const SVector& rhs);
     friend SVector operator+(const SVector& lhs, const SVector& rhs);
@@ -61,6 +67,13 @@ struct SVector
     SVector& operator/=(const float& value);
     friend SVector operator/(const SVector& vec, const float& value);
     friend SVector operator/(const float& value, const SVector& vec);
+    // ToString
+    /*template <typename Q> static std::wstring ToString(const Q& q);
+    template <typename Q> static std::wstring ToString(const Q* q);
+    template <typename Q> static std::wstring ToString(Q* q);
+    template<> static std::wstring ToString<SVector>(const SVector& v);
+    template<> static std::wstring ToString<SVector>(const SVector* v);
+    template<> static std::wstring ToString<SVector>(SVector* v);*/
     // Magnitude & Length
     float Magnitude() const;
     float Length() const { return Magnitude(); };
@@ -75,4 +88,3 @@ private:
         __m128 storage;
     };
 };
-
