@@ -1,7 +1,6 @@
 #pragma once
 
 #include <xmmintrin.h>
-#include <string>
 
 union UVector
 {
@@ -67,19 +66,18 @@ struct SVector
     SVector& operator/=(const float& value);
     friend SVector operator/(const SVector& vec, const float& value);
     friend SVector operator/(const float& value, const SVector& vec);
-    // ToString
-    /*template <typename Q> static std::wstring ToString(const Q& q);
-    template <typename Q> static std::wstring ToString(const Q* q);
-    template <typename Q> static std::wstring ToString(Q* q);
-    template<> static std::wstring ToString<SVector>(const SVector& v);
-    template<> static std::wstring ToString<SVector>(const SVector* v);
-    template<> static std::wstring ToString<SVector>(SVector* v);*/
     // Magnitude & Length
     float Magnitude() const;
     float Length() const { return Magnitude(); };
     float LengthXY() const;
     float SqrMagnitude() const;
     float SqrLength() const { return SqrMagnitude(); };
+    // normal() const
+    // normalize()
+    // operator | (dot product)
+    // operator ^ (cross product)
+    // operator<<
+    // operator>>
 
 private:
     union

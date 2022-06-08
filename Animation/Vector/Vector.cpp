@@ -2,7 +2,6 @@
 
 #include <pmmintrin.h>
 #include <math.h>
-#include <sstream>
 
 const SVector SVector::ZeroVector{ 0.f };
 
@@ -170,29 +169,6 @@ SVector operator/(const float& value, const SVector& vec)
     SVector result(_mm_div_ps(SVector::MakeStorage(value), vec.storage));
     result.components[SVector::_U_INDEX] = 0.f;
     return result;
-}
-
-/*            ToString            */
-template <typename Q> static std::wstring ToString(const Q& q);
-template <typename Q> static std::wstring ToString(const Q* q);
-template <typename Q> static std::wstring ToString(Q* q);
-
-template<> static std::wstring ToString<SVector>(const SVector& v)
-{
-    std::wostringstream line;
-    line.precision(8);
-    line << "x: " << v.GetX() << "y: " << v.GetY() << "z: " << v.GetZ() << "Unused: " << v.GetUnusedAxis();
-    return std::wstring(line.str());
-}
-
-template<> static std::wstring ToString<SVector>(const SVector* v)
-{
-    return ToString<SVector>(*v);
-}
-
-template<> static std::wstring ToString<SVector>(SVector* v)
-{
-    return ToString<SVector>(*v);
 }
 
 float SVector::Magnitude() const
