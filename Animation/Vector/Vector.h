@@ -20,7 +20,9 @@ struct SVector
     const static size_t _U_INDEX{ 0 };
 
     inline static __m128 MakeStorage(const float& value) { return _mm_set_ps(value, value, value, 0.f); };
+    inline static __m128 MakeDivisor(const float& value) { return _mm_set_ps(value, value, value, 1.f); };
     inline static __m128 MakeStorage(const float& x, const float& y, const float& z) { return _mm_set_ps(x, y, z, 0.f); };
+    inline static __m128 MakeDivisor(const float& x, const float& y, const float& z) { return _mm_set_ps(x, y, z, 1.f); };
 
     SVector(const float& value);
     SVector(const float& x, const float& y, const float& z);
@@ -69,15 +71,32 @@ struct SVector
     // Magnitude & Length
     float Magnitude() const;
     float Length() const { return Magnitude(); };
-    float LengthXY() const;
+    float MagnitudeXY() const;
+    float LengthXY() const { return MagnitudeXY(); };
     float SqrMagnitude() const;
     float SqrLength() const { return SqrMagnitude(); };
-    // normal() const
-    // normalize()
-    // operator | (dot product)
+    // Normalization and unit length
+    bool IsZero() const;
+    void Normalize();
+    void NormalizeSafe();
+    SVector Normal() const;
+    SVector NormalSafe() const;
+    SVector Unit() const { return Normal(); };
+    SVector UnitSafe() const { return NormalSafe(); };
+    // Dot Product
+    float operator|(const SVector& rhs) const;
+    float DotProduct(const SVector& rhs) const { return *this | rhs; };
+    static float DotProduct(const SVector& lhs, const SVector& rhs) { return lhs | rhs; };
     // operator ^ (cross product)
+    SVector& operator^=(const SVector& rhs);
+    SVector operator^(const SVector& rhs) const;
+    //friend SVector operator^(const SVector& lhs, const SVector& rhs);
     // operator<<
     // operator>>
+    // mirror() const (v - 2 * (v * n) n)
+    // reflection()
+    // negate
+    // project on to
 
 private:
     union

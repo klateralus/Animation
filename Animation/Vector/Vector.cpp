@@ -26,14 +26,14 @@ bool SVector::operator==(const SVector& rhs)
 {
     UVector result;
     result.storage = _mm_cmpeq_ps(storage, rhs.storage);
-    return result.components[0] && result.components[1] && result.components[2] && result.components[3];
+    return result.components[_X_INDEX] && result.components[_Y_INDEX] && result.components[_Z_INDEX] && result.components[_U_INDEX];
 }
 
 bool operator==(const SVector& lhs, const SVector& rhs)
 {
     UVector result;
     result.storage = _mm_cmpeq_ps(lhs.storage, rhs.storage);
-    return result.components[0] && result.components[1] && result.components[2] && result.components[3];
+    return result.components[SVector::_X_INDEX] && result.components[SVector::_Y_INDEX] && result.components[SVector::_Z_INDEX] && result.components[SVector::_U_INDEX];
 }
 
 /*            Inequality            */
@@ -41,14 +41,14 @@ bool SVector::operator!=(const SVector& rhs)
 {
     UVector result;
     result.storage = _mm_cmpneq_ps(storage, rhs.storage);
-    return result.components[3] || result.components[2] || result.components[1] || result.components[0];
+    return result.components[_X_INDEX] || result.components[_Y_INDEX] || result.components[_Z_INDEX] || result.components[_U_INDEX];
 }
 
 bool operator!=(const SVector& lhs, const SVector& rhs)
 {
     UVector result;
     result.storage = _mm_cmpneq_ps(lhs.storage, rhs.storage);
-    return result.components[3] || result.components[2] || result.components[1] || result.components[0];
+    return result.components[SVector::_X_INDEX] || result.components[SVector::_Y_INDEX] || result.components[SVector::_Z_INDEX] || result.components[SVector::_U_INDEX];
 }
 
 /*            Addition            */
@@ -152,15 +152,13 @@ SVector operator/(const SVector& lhs, const SVector& rhs)
 
 SVector& SVector::operator/=(const float& value)
 {
-    storage = _mm_div_ps(storage, MakeStorage(value));
-    components[_U_INDEX] = 0.f;
+    storage = _mm_div_ps(storage, MakeDivisor(value));
     return *this;
 }
 
 SVector operator/(const SVector& vec, const float& value)
 {
-    SVector result(_mm_div_ps(vec.storage, SVector::MakeStorage(value)));
-    result.components[SVector::_U_INDEX] = 0.f;
+    SVector result(_mm_div_ps(vec.storage, SVector::MakeDivisor(value)));
     return result;
 }
 
@@ -171,19 +169,20 @@ SVector operator/(const float& value, const SVector& vec)
     return result;
 }
 
+/*            Magnitude            */
 float SVector::Magnitude() const
 {
     UVector v;
     __m128 sqrs = _mm_mul_ps(storage, storage);
     // let's calcualte the sum of the squares
     __m128 sums = _mm_hadd_ps(sqrs, sqrs);      // {0.0f + z, y + x, 0.0f + z, y + x }
-    sums = _mm_hadd_ps(sqrs, sqrs);             // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+    sums = _mm_hadd_ps(sums, sums);             // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
     // let's get the square root only for one component
     v.storage = _mm_sqrt_ss(sums);
     return v.components[0];
 }
 
-float SVector::LengthXY() const
+float SVector::MagnitudeXY() const
 {
     UVector v;
     __m128 sqrs = _mm_mul_ps(storage, storage);
@@ -196,6 +195,73 @@ float SVector::SqrMagnitude() const
     UVector v;
     __m128 sqrs = _mm_mul_ps(storage, storage);
     __m128 sums = _mm_hadd_ps(sqrs, sqrs);      // {0.0f + z, y + x, 0.0f + z, y + x }
-    v.storage = _mm_hadd_ps(sqrs, sqrs);        // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+    v.storage = _mm_hadd_ps(sums, sums);        // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
     return v.components[0];
+}
+
+/*            Normalization            */
+bool SVector::IsZero() const
+{
+    UVector result;
+    result.storage = _mm_cmpeq_ps(storage, ZeroVector.storage);
+    return result.components[SVector::_X_INDEX] && result.components[SVector::_Y_INDEX] && result.components[SVector::_Z_INDEX];
+}
+void SVector::Normalize()
+{
+    const float length = Length();
+    storage = _mm_div_ps(storage, MakeDivisor(length));
+}
+
+void SVector::NormalizeSafe()
+{
+    if (!IsZero())
+    {
+        Normalize();
+    }
+}
+
+SVector SVector::Normal() const
+{
+    SVector result(*this);
+    result.Normalize();
+    return result;
+}
+
+SVector SVector::NormalSafe() const
+{
+    if (!IsZero())
+    {
+        return Normal();
+    }
+    return ZeroVector;
+}
+
+/*            Dot Product            */
+float SVector::operator|(const SVector& rhs) const
+{
+    UVector v;
+    v.storage = _mm_mul_ps(storage, rhs.storage);
+    v.storage = _mm_hadd_ps(v.storage, v.storage);  // {0.0f + z, y + x, 0.0f + z, y + x }
+    v.storage = _mm_hadd_ps(v.storage, v.storage);  // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+    return v.components[_U_INDEX];
+}
+
+/*            Cross Product            */
+SVector& SVector::operator^=(const SVector& rhs)
+{
+    __m128 a_yzx = _mm_shuffle_ps(storage, storage, _MM_SHUFFLE(_Y_INDEX, _Z_INDEX, _X_INDEX, _U_INDEX));
+    //__m128 b_zxy = _mm_shuffle_ps(rhs.storage, rhs.storage, _MM_SHUFFLE(_Z_INDEX, _X_INDEX, _Y_INDEX, _U_INDEX));
+    //__m128 a_zxy = _mm_shuffle_ps(storage, storage, _MM_SHUFFLE(_Z_INDEX, _X_INDEX, _Y_INDEX, _U_INDEX));
+    __m128 b_yzx = _mm_shuffle_ps(rhs.storage, rhs.storage, _MM_SHUFFLE(_Y_INDEX, _Z_INDEX, _X_INDEX, _U_INDEX));
+    //storage = _mm_sub_ps(_mm_mul_ps(a_yzx, b_zxy), _mm_mul_ps(a_zxy, b_yzx));
+    __m128 c = _mm_sub_ps(_mm_mul_ps(storage, b_yzx), _mm_mul_ps(a_yzx, rhs.storage));
+    storage = _mm_shuffle_ps(c, c, _MM_SHUFFLE(_Y_INDEX, _Z_INDEX, _X_INDEX, _U_INDEX));
+    return *this;
+}
+
+SVector SVector::operator^(const SVector& rhs) const
+{
+    SVector result(*this);
+    result ^= rhs;
+    return result;
 }
