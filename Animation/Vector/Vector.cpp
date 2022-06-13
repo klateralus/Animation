@@ -2,6 +2,8 @@
 
 #include <pmmintrin.h>
 #include <math.h>
+#include <sstream>
+#include <iomanip>
 
 const SVector SVector::ZeroVector{ 0.f };
 
@@ -264,4 +266,113 @@ SVector SVector::operator^(const SVector& rhs) const
     SVector result(*this);
     result ^= rhs;
     return result;
+}
+
+/*            Operator <<            */
+ostream& operator<<(ostream& os, const SVector& rhs)
+{
+    os << fixed << setprecision(2) << "(" << rhs.GetX() << ", " << rhs.GetY() << ", " << rhs.GetZ() << ')';
+    return os;
+}
+
+wostream& operator<<(wostream& os, const SVector& rhs)
+{
+    os << fixed << setprecision(2) << L"(" << rhs.GetX() << L", " << rhs.GetY() << L", " << rhs.GetZ() << L")";
+    return os;
+}
+
+/*            Operator >>            */
+istream& operator>>(istream& is, SVector& rhs)
+{
+    string input;
+    //is >> ws >> input;
+    getline(is, input);
+    auto start_bracer = input.find("(");
+    if (start_bracer == string::npos)
+    {
+        return is;
+    }
+    auto end_bracer = input.find(")");
+    if (end_bracer == string::npos)
+    {
+        return is;
+    }
+    auto first_comma = input.find(",");
+    if (first_comma == string::npos)
+    {
+        return is;
+    }
+    auto second_comma = input.find(",", first_comma + 1);
+    if (second_comma == string::npos)
+    {
+        return is;
+    }
+    
+    float value{ 0 };
+    {
+        istringstream x(input.substr(start_bracer + 1, first_comma - start_bracer - 1));
+        x >> value;
+        rhs.SetX(value);
+    }
+    
+    {
+        istringstream y(input.substr(first_comma + 1, second_comma - first_comma - 1));
+        y >> value;
+        rhs.SetY(value);
+    }
+
+    {
+        istringstream z(input.substr(second_comma + 1, end_bracer - second_comma - 1));
+        z >> value;
+        rhs.SetZ(value);
+    }
+
+    return is;
+}
+
+wistream& operator>>(wistream& is, SVector& rhs)
+{
+    wstring input;
+    getline(is, input);
+    auto start_bracer = input.find(L"(");
+    if (start_bracer == string::npos)
+    {
+        return is;
+    }
+    auto end_bracer = input.find(L")");
+    if (end_bracer == string::npos)
+    {
+        return is;
+    }
+    auto first_comma = input.find(L",");
+    if (first_comma == string::npos)
+    {
+        return is;
+    }
+    auto second_comma = input.find(L",", first_comma + 1);
+    if (second_comma == string::npos)
+    {
+        return is;
+    }
+
+    float value{ 0 };
+    {
+        wistringstream x(input.substr(start_bracer + 1, first_comma - start_bracer - 1));
+        x >> value;
+        rhs.SetX(value);
+    }
+
+    {
+        wistringstream y(input.substr(first_comma + 1, second_comma - first_comma - 1));
+        y >> value;
+        rhs.SetY(value);
+    }
+
+    {
+        wistringstream z(input.substr(second_comma + 1, end_bracer - second_comma - 1));
+        z >> value;
+        rhs.SetZ(value);
+    }
+
+    return is;
 }

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <xmmintrin.h>
+#include <iostream>
+
+using namespace std;
 
 union UVector
 {
@@ -24,6 +27,7 @@ struct SVector
     inline static __m128 MakeStorage(const float& x, const float& y, const float& z) { return _mm_set_ps(x, y, z, 0.f); };
     inline static __m128 MakeDivisor(const float& x, const float& y, const float& z) { return _mm_set_ps(x, y, z, 1.f); };
 
+    SVector() = default;
     SVector(const float& value);
     SVector(const float& x, const float& y, const float& z);
     SVector(const __m128& value);
@@ -34,6 +38,7 @@ struct SVector
     inline float GetUnusedAxis() const { return components[_U_INDEX]; };
     inline void SetX(const float& value) { components[_X_INDEX] = value; };
     inline void SetY(const float& value) { components[_Y_INDEX] = value; };
+    inline void SetZ(const float& value) { components[_Z_INDEX] = value; };
     inline void SetUnusedAxis(const float& value) { components[_U_INDEX] = value; };
     inline void ResetUnusedAxis() { components[_U_INDEX] = 0.f; };
 
@@ -90,9 +95,12 @@ struct SVector
     // operator ^ (cross product)
     SVector& operator^=(const SVector& rhs);
     SVector operator^(const SVector& rhs) const;
-    //friend SVector operator^(const SVector& lhs, const SVector& rhs);
     // operator<<
+    friend ostream& operator<<(ostream& os, const SVector& rhs);
+    friend wostream& operator<<(wostream& os, const SVector& rhs);
     // operator>>
+    friend istream& operator>>(istream& is, SVector& rhs);
+    friend wistream& operator>>(wistream& is, SVector& rhs);
     // mirror() const (v - 2 * (v * n) n)
     // reflection()
     // negate
@@ -101,7 +109,7 @@ struct SVector
 private:
     union
     {
-        float components[4];
+        float components[4]{ 0.f };
         __m128 storage;
     };
 };

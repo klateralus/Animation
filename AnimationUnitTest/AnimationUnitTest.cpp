@@ -339,12 +339,66 @@ namespace AnimationUnitTest
 		}
 		TEST_METHOD(CrossProductTests)
 		{
-			const SVector x(1.0f, 0.f, 0.f);
-			const SVector y(0.0f, 1.f, 0.f);
-			const SVector z(0.0f, 0.f, 1.f);
-			const SVector r = x ^ y;
+			{
+				const SVector x(1.0f, 0.f, 0.f);
+				const SVector y(0.0f, 1.f, 0.f);
+				const SVector z(0.0f, 0.f, 1.f);
+				const SVector r = x ^ y;
 
-			Assert::AreEqual(r, z);
+				Assert::AreEqual(r, z);
+			}
+			{
+				SVector x(1.0f, 0.f, 0.f);
+				const SVector y(0.0f, 1.f, 0.f);
+				const SVector z(0.0f, 0.f, 1.f);
+				x ^= y;
+
+				Assert::AreEqual(x, z);
+			}
+		}
+		TEST_METHOD(StreamOperatorsTests)
+		{
+			{
+				const SVector x(1.5f, 1.3f, 1.0f);
+				ostringstream output;
+				output << x;
+				const string x_s(output.str());
+				const string result("(1.50, 1.30, 1.00)");
+
+				Assert::AreEqual(x_s, result);
+			}
+
+			{
+				const SVector x(1.5f, 1.3f, 1.0f);
+				wostringstream output;
+				output << x;
+				const wstring x_s(output.str());
+				const wstring result(L"(1.50, 1.30, 1.00)");
+
+				Assert::AreEqual(x_s, result);
+			}
+
+			{
+				const SVector x(1.f, 3.f, 4.f);
+				ostringstream output;
+				output << x;
+				istringstream input(output.str());
+				SVector a;
+				input >> a;
+
+				Assert::AreEqual(x, a);
+			}
+
+			{
+				const SVector x(1.f, 3.f, 4.f);
+				wostringstream output;
+				output << x;
+				wistringstream input(output.str());
+				SVector a;
+				input >> a;
+
+				Assert::AreEqual(x, a);
+			}
 		}
 	};
 }
