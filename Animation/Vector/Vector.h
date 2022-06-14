@@ -101,9 +101,13 @@ struct SVector
     // operator>>
     friend istream& operator>>(istream& is, SVector& rhs);
     friend wistream& operator>>(wistream& is, SVector& rhs);
-    // mirror() const (v - 2 * (v * n) n)
-    // reflection()
+    // mirror() (v - 2 * (v * n) n)
+    void Mirror(const SVector& n);
+    // reflection() const
+    SVector Reflection(const SVector& n) const;
+    // operator-()
     // negate
+    // Projection
     // project on to
 
 private:

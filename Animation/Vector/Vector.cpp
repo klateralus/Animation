@@ -235,7 +235,7 @@ SVector SVector::NormalSafe() const
     {
         return Normal();
     }
-    return ZeroVector;
+    return *this;
 }
 
 /*            Dot Product            */
@@ -285,7 +285,6 @@ wostream& operator<<(wostream& os, const SVector& rhs)
 istream& operator>>(istream& is, SVector& rhs)
 {
     string input;
-    //is >> ws >> input;
     getline(is, input);
     auto start_bracer = input.find("(");
     if (start_bracer == string::npos)
@@ -375,4 +374,17 @@ wistream& operator>>(wistream& is, SVector& rhs)
     }
 
     return is;
+}
+
+/*            Reflection            */
+void SVector::Mirror(const SVector& n)
+{
+    *this -= n * ( 2.0 * (*this | n));
+}
+
+SVector SVector::Reflection(const SVector& n) const
+{
+    SVector result(*this);
+    result.Mirror(n);
+    return result;
 }
