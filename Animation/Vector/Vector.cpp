@@ -379,7 +379,7 @@ wistream& operator>>(wistream& is, SVector& rhs)
 /*            Reflection            */
 void SVector::Mirror(const SVector& n)
 {
-    *this -= n * ( 2.0 * (*this | n));
+    *this -= n * ( 2.f * (*this | n));
 }
 
 SVector SVector::Reflection(const SVector& n) const
