@@ -360,29 +360,29 @@ namespace AnimationUnitTest
 		{
 			{
 				const SVector x(1.5f, 1.3f, 1.0f);
-				ostringstream output;
+				std::ostringstream output;
 				output << x;
-				const string x_s(output.str());
-				const string result("(1.50, 1.30, 1.00)");
+				const std::string x_s(output.str());
+				const std::string result("(1.50, 1.30, 1.00)");
 
 				Assert::AreEqual(x_s, result);
 			}
 
 			{
 				const SVector x(1.5f, 1.3f, 1.0f);
-				wostringstream output;
+				std::wostringstream output;
 				output << x;
-				const wstring x_s(output.str());
-				const wstring result(L"(1.50, 1.30, 1.00)");
+				const std::wstring x_s(output.str());
+				const std::wstring result(L"(1.50, 1.30, 1.00)");
 
 				Assert::AreEqual(x_s, result);
 			}
 
 			{
 				const SVector x(1.f, 3.f, 4.f);
-				ostringstream output;
+				std::ostringstream output;
 				output << x;
-				istringstream input(output.str());
+				std::istringstream input(output.str());
 				SVector a;
 				input >> a;
 
@@ -391,9 +391,9 @@ namespace AnimationUnitTest
 
 			{
 				const SVector x(1.f, 3.f, 4.f);
-				wostringstream output;
+				std::wostringstream output;
 				output << x;
-				wistringstream input(output.str());
+				std::wistringstream input(output.str());
 				SVector a;
 				input >> a;
 

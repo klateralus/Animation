@@ -81,7 +81,7 @@ SVector operator+(const float& value, const SVector& vec)
     return SVector(_mm_add_ps(vec.storage, SVector::MakeStorage(value)));
 }
 
-/*            Substraction            */
+/*            Subtraction            */
 SVector& SVector::operator-=(const SVector& rhs)
 {
     storage = _mm_sub_ps(storage, rhs.storage);
@@ -175,10 +175,12 @@ SVector operator/(const float& value, const SVector& vec)
 float SVector::Magnitude() const
 {
     UVector v;
-    __m128 sqrs = _mm_mul_ps(storage, storage);
-    // let's calcualte the sum of the squares
-    __m128 sums = _mm_hadd_ps(sqrs, sqrs);      // {0.0f + z, y + x, 0.0f + z, y + x }
+    __m128 squares = _mm_mul_ps(storage, storage);
+    
+    // let's calculate the sum of the squares
+    __m128 sums = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
     sums = _mm_hadd_ps(sums, sums);             // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+    
     // let's get the square root only for one component
     v.storage = _mm_sqrt_ss(sums);
     return v.components[0];
@@ -187,16 +189,16 @@ float SVector::Magnitude() const
 float SVector::MagnitudeXY() const
 {
     UVector v;
-    __m128 sqrs = _mm_mul_ps(storage, storage);
-    v.storage = _mm_hadd_ps(sqrs, sqrs);      // {0.0f + z, y + x, 0.0f + z, y + x }
+    __m128 squares = _mm_mul_ps(storage, storage);
+    v.storage = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
     return sqrtf(v.components[1]);
 }
 
 float SVector::SqrMagnitude() const
 {
     UVector v;
-    __m128 sqrs = _mm_mul_ps(storage, storage);
-    __m128 sums = _mm_hadd_ps(sqrs, sqrs);      // {0.0f + z, y + x, 0.0f + z, y + x }
+    __m128 squares = _mm_mul_ps(storage, storage);
+    __m128 sums = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
     v.storage = _mm_hadd_ps(sums, sums);        // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
     return v.components[0];
 }
@@ -208,6 +210,7 @@ bool SVector::IsZero() const
     result.storage = _mm_cmpeq_ps(storage, ZeroVector.storage);
     return result.components[SVector::_X_INDEX] && result.components[SVector::_Y_INDEX] && result.components[SVector::_Z_INDEX];
 }
+
 void SVector::Normalize()
 {
     const float length = Length();
@@ -252,10 +255,7 @@ float SVector::operator|(const SVector& rhs) const
 SVector& SVector::operator^=(const SVector& rhs)
 {
     __m128 a_yzx = _mm_shuffle_ps(storage, storage, _MM_SHUFFLE(_Y_INDEX, _Z_INDEX, _X_INDEX, _U_INDEX));
-    //__m128 b_zxy = _mm_shuffle_ps(rhs.storage, rhs.storage, _MM_SHUFFLE(_Z_INDEX, _X_INDEX, _Y_INDEX, _U_INDEX));
-    //__m128 a_zxy = _mm_shuffle_ps(storage, storage, _MM_SHUFFLE(_Z_INDEX, _X_INDEX, _Y_INDEX, _U_INDEX));
     __m128 b_yzx = _mm_shuffle_ps(rhs.storage, rhs.storage, _MM_SHUFFLE(_Y_INDEX, _Z_INDEX, _X_INDEX, _U_INDEX));
-    //storage = _mm_sub_ps(_mm_mul_ps(a_yzx, b_zxy), _mm_mul_ps(a_zxy, b_yzx));
     __m128 c = _mm_sub_ps(_mm_mul_ps(storage, b_yzx), _mm_mul_ps(a_yzx, rhs.storage));
     storage = _mm_shuffle_ps(c, c, _MM_SHUFFLE(_Y_INDEX, _Z_INDEX, _X_INDEX, _U_INDEX));
     return *this;
@@ -269,59 +269,63 @@ SVector SVector::operator^(const SVector& rhs) const
 }
 
 /*            Operator <<            */
-ostream& operator<<(ostream& os, const SVector& rhs)
+std::ostream& operator<<(std::ostream& os, const SVector& rhs)
 {
-    os << fixed << setprecision(2) << "(" << rhs.GetX() << ", " << rhs.GetY() << ", " << rhs.GetZ() << ')';
+    os << std::fixed << std::setprecision(2) << "(" << rhs.GetX() << ", " << rhs.GetY() << ", " << rhs.GetZ() << ')';
     return os;
 }
 
-wostream& operator<<(wostream& os, const SVector& rhs)
+std::wostream& operator<<(std::wostream& os, const SVector& rhs)
 {
-    os << fixed << setprecision(2) << L"(" << rhs.GetX() << L", " << rhs.GetY() << L", " << rhs.GetZ() << L")";
+    os << std::fixed << std::setprecision(2) << L"(" << rhs.GetX() << L", " << rhs.GetY() << L", " << rhs.GetZ() << L")";
     return os;
 }
 
 /*            Operator >>            */
-istream& operator>>(istream& is, SVector& rhs)
+std::istream& operator>>(std::istream& is, SVector& rhs)
 {
-    string input;
-    getline(is, input);
+    std::string input;
+    std::getline(is, input);
+
     auto start_bracer = input.find("(");
-    if (start_bracer == string::npos)
+    if (start_bracer == std::string::npos)
     {
         return is;
     }
+
     auto end_bracer = input.find(")");
-    if (end_bracer == string::npos)
+    if (end_bracer == std::string::npos)
     {
         return is;
     }
+
     auto first_comma = input.find(",");
-    if (first_comma == string::npos)
+    if (first_comma == std::string::npos)
     {
         return is;
     }
+
     auto second_comma = input.find(",", first_comma + 1);
-    if (second_comma == string::npos)
+    if (second_comma == std::string::npos)
     {
         return is;
     }
     
     float value{ 0 };
     {
-        istringstream x(input.substr(start_bracer + 1, first_comma - start_bracer - 1));
+        std::istringstream x(input.substr(start_bracer + 1, first_comma - start_bracer - 1));
         x >> value;
         rhs.SetX(value);
     }
     
     {
-        istringstream y(input.substr(first_comma + 1, second_comma - first_comma - 1));
+        std::istringstream y(input.substr(first_comma + 1, second_comma - first_comma - 1));
         y >> value;
         rhs.SetY(value);
     }
 
     {
-        istringstream z(input.substr(second_comma + 1, end_bracer - second_comma - 1));
+        std::istringstream z(input.substr(second_comma + 1, end_bracer - second_comma - 1));
         z >> value;
         rhs.SetZ(value);
     }
@@ -329,46 +333,50 @@ istream& operator>>(istream& is, SVector& rhs)
     return is;
 }
 
-wistream& operator>>(wistream& is, SVector& rhs)
+std::wistream& operator>>(std::wistream& is, SVector& rhs)
 {
-    wstring input;
-    getline(is, input);
+    std::wstring input;
+    std::getline(is, input);
+
     auto start_bracer = input.find(L"(");
-    if (start_bracer == string::npos)
+    if (start_bracer == std::string::npos)
     {
         return is;
     }
+
     auto end_bracer = input.find(L")");
-    if (end_bracer == string::npos)
+    if (end_bracer == std::string::npos)
     {
         return is;
     }
+
     auto first_comma = input.find(L",");
-    if (first_comma == string::npos)
+    if (first_comma == std::string::npos)
     {
         return is;
     }
+
     auto second_comma = input.find(L",", first_comma + 1);
-    if (second_comma == string::npos)
+    if (second_comma == std::string::npos)
     {
         return is;
     }
 
     float value{ 0 };
     {
-        wistringstream x(input.substr(start_bracer + 1, first_comma - start_bracer - 1));
+        std::wistringstream x(input.substr(start_bracer + 1, first_comma - start_bracer - 1));
         x >> value;
         rhs.SetX(value);
     }
 
     {
-        wistringstream y(input.substr(first_comma + 1, second_comma - first_comma - 1));
+        std::wistringstream y(input.substr(first_comma + 1, second_comma - first_comma - 1));
         y >> value;
         rhs.SetY(value);
     }
 
     {
-        wistringstream z(input.substr(second_comma + 1, end_bracer - second_comma - 1));
+        std::wistringstream z(input.substr(second_comma + 1, end_bracer - second_comma - 1));
         z >> value;
         rhs.SetZ(value);
     }

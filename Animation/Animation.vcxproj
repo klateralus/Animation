@@ -132,13 +132,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
-    <ClCompile Include="Joint\Joint.cpp" />
-    <ClCompile Include="VectorN\VectorN.cpp" />
     <ClCompile Include="Vector\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Joint\Joint.h" />
-    <ClInclude Include="VectorN\VectorN.h" />
     <ClInclude Include="Vector\Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
