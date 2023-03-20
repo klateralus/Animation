@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "CppUnitTest.h"
-#include "../Animation/Vector/Vector.h"
-#include "../Animation/Vector/Vector.cpp"
-#include <xmmintrin.h>
-#include <string>
 #include <sstream>
+#include <string>
+#include <xmmintrin.h>
+#include "CppUnitTest.h"
+#include "../Animation/Vector/Vector.cpp"
+#include "../Animation/Vector/Vector.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -34,7 +34,7 @@ namespace AnimationUnitTest
 		TEST_METHOD(ConstructorTests)
 		{
 			{
-				const float zero_value{ 0.f };
+				constexpr float zero_value{ 0.f };
 				const SVector zero_vector(zero_value);
 				Assert::AreEqual(zero_vector.GetX(), zero_value);
 				Assert::AreEqual(zero_vector.GetY(), zero_value);
@@ -43,7 +43,7 @@ namespace AnimationUnitTest
 			}
 
 			{
-				const float x{ 1 }, y{ 2 }, z{ 3 }, zero{ 0.f };
+				constexpr float x{ 1 }, y{ 2 }, z{ 3 }, zero{ 0.f };
 				const SVector vector(x, y, z);
 				Assert::AreEqual(vector.GetX(), x);
 				Assert::AreEqual(vector.GetY(), y);
@@ -52,12 +52,12 @@ namespace AnimationUnitTest
 			}
 
 			{
-				const float x{ 1 }, y{ 2 }, z{ 3 }, w{ 4 }, zero{ 0.f };
+				constexpr float x{ 1 }, y{ 2 }, z{ 3 }, w{ 4 }, zero{ 0.f };
 				union
 				{
 					__m128 sse_value;
 					float float_values[4];
-				} value;
+				} value{};
 				value.sse_value = _mm_set_ps(x, y, z, w);
 
 				const SVector vector(value.sse_value);
@@ -203,10 +203,10 @@ namespace AnimationUnitTest
 				const SVector a(1.f, 0.f, 0.f);
 				const float magnitude = a.Magnitude();
 				const float length = a.Length();
-				const float answer = 1.f;
+				constexpr float answer = 1.f;
 				const SVector b(4.f, 3.f, 0.f);
 				const float magnitude_02 = b.Magnitude();
-				const float answer_02 = 5.f;
+				constexpr float answer_02 = 5.f;
 
 
 				Assert::AreEqual(magnitude, answer);
@@ -218,7 +218,7 @@ namespace AnimationUnitTest
 				const SVector a(4.f, 0.f, 0.f);
 				const float square_magnitude = a.SqrMagnitude();
 				const float square_length = a.SqrLength();
-				const float answer = 16.f;
+				constexpr float answer = 16.f;
 
 				Assert::AreEqual(square_magnitude, answer);
 				Assert::AreEqual(square_length, answer);
@@ -228,7 +228,7 @@ namespace AnimationUnitTest
 				const SVector a(4.f, 3.f, 9.f);
 				const float mag_xy = a.MagnitudeXY();
 				const float len_xy = a.LengthXY();
-				const float answer = 5.f;
+				constexpr float answer = 5.f;
 
 				Assert::AreEqual(mag_xy, answer);
 				Assert::AreEqual(len_xy, answer);
