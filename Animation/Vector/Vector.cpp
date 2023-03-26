@@ -403,7 +403,9 @@ std::wistream& operator>>(std::wistream& is, SVector& rhs)
 /*            Reflection            */
 void SVector::Mirror(const SVector& n)
 {
-    *this -= n * ( 2.f * (*this | n));
+    const SVector normal = n.NormalSafe();
+    
+    *this -= ( 2.f * (*this | normal) * normal);
 }
 
 SVector SVector::Reflection(const SVector& n) const
@@ -411,4 +413,12 @@ SVector SVector::Reflection(const SVector& n) const
     SVector result(*this);
     result.Mirror(n);
     return result;
+}
+
+/*            urinary negate            */
+SVector SVector::operator-() const
+{
+    const __m128 sign_mask = _mm_set1_ps(-0.0f);
+    const __m128 result = _mm_xor_ps(storage, sign_mask);
+    return {result};
 }

@@ -105,11 +105,11 @@ struct SVector
     
     // Magnitude & Length
     float Magnitude() const;
-    float Length() const { return Magnitude(); };
+    float Length() const { return Magnitude(); }
     float MagnitudeXY() const;
-    float LengthXY() const { return MagnitudeXY(); };
+    float LengthXY() const { return MagnitudeXY(); }
     float SqrMagnitude() const;
-    float SqrLength() const { return SqrMagnitude(); };
+    float SqrLength() const { return SqrMagnitude(); }
     
     // Normalization and unit length
     bool IsZero() const;
@@ -117,13 +117,13 @@ struct SVector
     void NormalizeSafe();
     SVector Normal() const;
     SVector NormalSafe() const;
-    SVector Unit() const { return Normal(); };
-    SVector UnitSafe() const { return NormalSafe(); };
+    SVector Unit() const { return Normal(); }
+    SVector UnitSafe() const { return NormalSafe(); }
     
     // Dot Product
     float operator|(const SVector& rhs) const;
-    float DotProduct(const SVector& rhs) const { return *this | rhs; };
-    static float DotProduct(const SVector& lhs, const SVector& rhs) { return lhs | rhs; };
+    float DotProduct(const SVector& rhs) const { return *this | rhs; }
+    static float DotProduct(const SVector& lhs, const SVector& rhs) { return lhs | rhs; }
     
     // operator ^ (cross product)
     SVector& operator^=(const SVector& rhs);
@@ -142,9 +142,11 @@ struct SVector
     
     // reflection() const
     SVector Reflection(const SVector& n) const;
+
+    // unary minus operator
+    SVector operator-() const;
     
     // todo: List of methods to implement
-    // operator-()
     // negate
     // Projection
     // project on to

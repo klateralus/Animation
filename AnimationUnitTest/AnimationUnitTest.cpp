@@ -400,5 +400,50 @@ namespace AnimationUnitTest
 				Assert::AreEqual(x, a);
 			}
 		}
+		TEST_METHOD(ReflectionMethodsTest)
+		{
+			{
+				const SVector normal{0.f, 0.f, 1.f};
+				SVector x{1.f, 0.f, 0.f};
+				const SVector expected{1.f, 0.f, 0.f};
+
+				x.Mirror(normal);
+				Assert::AreEqual(expected, x);
+			}
+
+			{
+				const SVector normal{ 0.f, 0.f, 1.f };
+				SVector x{ 1.f, 2.f, 3.f };
+				const SVector expected{ 1.f, 2.f, -3.f };
+
+				x.Mirror(normal);
+				Assert::AreEqual(expected, x);
+			}
+			
+			{
+				const SVector normal{0.f, 0.f, 1.f};
+				const SVector x{1.f, 0.f, 0.f};
+				const SVector expected{1.f, 0.f, 0.f};
+
+				Assert::AreEqual(expected, x.Reflection(normal));
+			}
+
+			{
+				const SVector normal{ 0.f, 0.f, 1.f };
+				const SVector x{ 1.f, 2.f, 3.f };
+				const SVector expected{ 1.f, 2.f, -3.f };
+
+				Assert::AreEqual(expected, x.Reflection(normal));
+			}
+		}
+		TEST_METHOD(NegateMethodsTest)
+		{
+			{
+				const SVector x(1.f, 0.f, -1.f);
+				const SVector expected(-1.f, 0.f, 1.f);
+
+				Assert::AreEqual(expected, -x);
+			}
+		}
 	};
 }
