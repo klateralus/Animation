@@ -143,13 +143,22 @@ struct SVector
     // reflection() const
     SVector Reflection(const SVector& n) const;
 
-    // unary minus operator
+    // negation
     SVector operator-() const;
+    void Negate();
+
+    // projection
+    /* When we project vector on a non-unit vector we need to normalize dot product */
+    void ProjectOnTo(const SVector& v);
+    /* When we project vector on an unit vector, we can drop the normalization part */
+    void ProjectOnToNormal(const SVector& n);
+
+    SVector ProjectionOnTo(const SVector& v) const;
+    SVector ProjectionOnToNormal(const SVector& n) const;
     
     // todo: List of methods to implement
-    // negate
-    // Projection
-    // project on to
+    // rejection
+    // outer product
 
 private:
     union

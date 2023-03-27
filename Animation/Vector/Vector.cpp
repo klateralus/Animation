@@ -415,10 +415,41 @@ SVector SVector::Reflection(const SVector& n) const
     return result;
 }
 
-/*            urinary negate            */
+/*            Negation            */
 SVector SVector::operator-() const
 {
     const __m128 sign_mask = _mm_set1_ps(-0.0f);
     const __m128 result = _mm_xor_ps(storage, sign_mask);
     return {result};
+}
+
+void SVector::Negate()
+{
+    const __m128 sign_mask = _mm_set1_ps(-0.0f);
+    storage = _mm_xor_ps(storage, sign_mask);
+}
+
+/*          Projection          */
+void SVector::ProjectOnTo(const SVector& v)
+{
+    *this = (*this | v) / (v | v) * v;
+}
+
+void SVector::ProjectOnToNormal(const SVector& n)
+{
+    *this = (*this | n) * n;
+}
+
+SVector SVector::ProjectionOnTo(const SVector& v) const
+{
+    SVector result{*this};
+    result.ProjectOnTo(v);
+    return result;
+}
+
+SVector SVector::ProjectionOnToNormal(const SVector& n) const
+{
+    SVector result{*this};
+    result.ProjectOnToNormal(n);
+    return result;
 }

@@ -444,6 +444,13 @@ namespace AnimationUnitTest
 
 				Assert::AreEqual(expected, -x);
 			}
+			{
+				const SVector expected(-1.f, 0.f, 1.f);
+				SVector x(1.f, 0.f, -1.f);
+				x.Negate();
+
+				Assert::AreEqual(expected, x);
+			}
 		}
 	};
 }
