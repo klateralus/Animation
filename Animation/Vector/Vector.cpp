@@ -453,3 +453,23 @@ SVector SVector::ProjectionOnToNormal(const SVector& n) const
     result.ProjectOnToNormal(n);
     return result;
 }
+
+void SVector::RejectTo(const SVector& v)
+{
+    *this -= this->ProjectionOnTo(v);
+}
+
+SVector SVector::RejectionTo(const SVector& v) const
+{
+    return *this - this->ProjectionOnTo(v);
+}
+
+void SVector::RejectToNormal(const SVector& n)
+{
+    *this -= this->ProjectionOnToNormal(n);
+}
+
+SVector SVector::RejectionToNormal(const SVector& n) const
+{
+    return *this - this->ProjectionOnToNormal(n);
+}

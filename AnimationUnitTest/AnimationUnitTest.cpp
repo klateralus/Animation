@@ -452,5 +452,94 @@ namespace AnimationUnitTest
 				Assert::AreEqual(expected, x);
 			}
 		}
+		TEST_METHOD(ProjectionMethodsTest)
+		{
+			{
+				SVector a(1.f, 2.f, 3.f);
+				const SVector b(4.f, 5.f, 6.f);
+				/* 
+				 * (a * b / b * b) * b =>
+				 * (1 * 4 + 2 * 5 + 3 * 6)/(4 * 4 + 5 * 5 + 6 * 6) * (4, 5, 6) =>
+				 * (32 / 77) * (4, 5, 6) =>
+				 * (128, 160, 192) / 77 =>
+				 */
+				const SVector t(128.f, 160.f, 192.f);
+				const SVector expected = t / 77.f;
+
+				a.ProjectOnTo(b);
+				Assert::AreEqual(expected, a);
+			}
+			{
+				SVector a(1.f, 2.f, 3.f);
+				const SVector n(0.f, 1.f, 0.f);
+				/*
+				 * (a * n) * n =>
+				 * (1 * 0 + 2 * 1 + 3 * 0) * (0, 1, 0) =>
+				 * (2) * (0, 1, 0)
+				 */
+				const SVector expected(n * 2.f);
+
+				a.ProjectOnToNormal(n);
+				Assert::AreEqual(expected, a);
+			}
+			{
+				const SVector a(1.f, 2.f, 3.f);
+				const SVector b(4.f, 5.f, 6.f);
+				/* 
+				 * (a * b / b * b) * b =>
+				 * (1 * 4 + 2 * 5 + 3 * 6)/(4 * 4 + 5 * 5 + 6 * 6) * (4, 5, 6) =>
+				 * (32 / 77) * (4, 5, 6) =>
+				 * (128, 160, 192) / 77 =>
+				 */
+				const SVector expected = SVector(128.f, 160.f, 192.f) / 77.f;
+				
+				Assert::AreEqual(expected, a.ProjectionOnTo(b));
+			}
+			{
+				const SVector a(1.f, 2.f, 3.f);
+				const SVector n(0.f, 1.f, 0.f);
+				/*
+				 * (a * n) * n =>
+				 * (1 * 0 + 2 * 1 + 3 * 0) * (0, 1, 0) =>
+				 * (2) * (0, 1, 0)
+				 */
+				const SVector expected(n * 2.f);
+				
+				Assert::AreEqual(expected, a.ProjectionOnToNormal(n));
+			}
+		}
+		TEST_METHOD(RejectionMethodsTest)
+		{
+			{
+				SVector a(1.f, 2.f, 3.f);
+				const SVector b(4.f, 5.f, 6.f);
+				const SVector expected = a - a.ProjectionOnTo(b);
+
+				a.RejectTo(b);
+				Assert::AreEqual(expected, a);
+			}
+			{
+				SVector a(1.f, 2.f, 3.f);
+				const SVector n(0.f, 1.f, 0.f);
+				const SVector expected = a - a.ProjectionOnToNormal(n);
+
+				a.RejectToNormal(n);
+				Assert::AreEqual(expected, a);
+			}
+			{
+				SVector a(1.f, 2.f, 3.f);
+				const SVector b(4.f, 5.f, 6.f);
+				const SVector expected = a - a.ProjectionOnTo(b);
+
+				Assert::AreEqual(expected, a.RejectionTo(b));
+			}
+			{
+				SVector a(1.f, 2.f, 3.f);
+				const SVector n(0.f, 1.f, 0.f);
+				const SVector expected = a - a.ProjectionOnToNormal(n);
+
+				Assert::AreEqual(expected, a.RejectionToNormal(n));
+			}
+		}
 	};
 }

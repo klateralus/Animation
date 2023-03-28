@@ -150,14 +150,21 @@ struct SVector
     // projection
     /* When we project vector on a non-unit vector we need to normalize dot product */
     void ProjectOnTo(const SVector& v);
+    SVector ProjectionOnTo(const SVector& v) const;
+    
     /* When we project vector on an unit vector, we can drop the normalization part */
     void ProjectOnToNormal(const SVector& n);
-
-    SVector ProjectionOnTo(const SVector& v) const;
     SVector ProjectionOnToNormal(const SVector& n) const;
+
+    // rejection
+    /* When we find a rejection vector to a non-unit vector we need to normalize dot product */
+    void RejectTo(const SVector& v);
+    SVector RejectionTo(const SVector& v) const;
+
+    void RejectToNormal(const SVector& n);
+    SVector RejectionToNormal(const SVector& n) const;
     
     // todo: List of methods to implement
-    // rejection
     // outer product
 
 private:
