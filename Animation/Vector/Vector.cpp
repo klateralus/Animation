@@ -165,43 +165,49 @@ SVector operator/(const float& value, const SVector& vec)
 /*            Magnitude            */
 float SVector::Magnitude() const
 {
-    UVector v;
     const __m128 squares = _mm_mul_ps(storage, storage);
     
-    // let's calculate the sum of the squares
     __m128 sums = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
-    sums = _mm_hadd_ps(sums, sums);             // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+    sums = _mm_hadd_ps(sums, sums);                   // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
     
-    // let's get the square root only for one component
-    v.storage = _mm_sqrt_ss(sums);
-    return v.components[0];
+    // extract the lowest component
+    const float result = _mm_cvtss_f32(sums); 
+    
+    return sqrtf(result);
 }
 
 float SVector::MagnitudeXY() const
 {
-    UVector v;
     const __m128 squares = _mm_mul_ps(storage, storage);
-    v.storage = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
-    return sqrtf(v.components[1]);
+
+    const __m128 sums = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
+
+    // let's move 1th element to 0th place in register
+    const __m128 shuffled = _mm_shuffle_ps(sums, sums, _MM_SHUFFLE(1, 0, 2, 3));
+    
+    const float result = _mm_cvtss_f32(shuffled);
+
+    return sqrtf(result);
 }
 
 float SVector::SqrMagnitude() const
 {
-    UVector v;
     const __m128 squares = _mm_mul_ps(storage, storage);
-    const __m128 sums = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
-    v.storage = _mm_hadd_ps(sums, sums);        // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
-    return v.components[0];
+    __m128 sums = _mm_hadd_ps(squares, squares);      // {0.0f + z, y + x, 0.0f + z, y + x }
+    sums = _mm_hadd_ps(sums, sums);                 // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+
+    // let's extract the lowest component
+    const float result = _mm_cvtss_f32(sums);
+
+    return result;
 }
 
 /*            Normalization            */
 bool SVector::IsZero() const
 {
-    UVector result;
-    result.storage = _mm_cmpeq_ps(storage, ZeroVector.storage);
-    return result.components[SVector::X_INDEX] != 0.f
-    && result.components[SVector::Y_INDEX] != 0.f
-    && result.components[SVector::Z_INDEX] != 0.f;
+    const __m128 result = _mm_cmpeq_ps(storage, ZeroVector.storage);
+    const int masked = _mm_movemask_ps(result);
+    return masked == MoveMaskPSTrue;
 }
 
 void SVector::Normalize()
@@ -237,11 +243,14 @@ SVector SVector::NormalSafe() const
 /*            Dot Product            */
 float SVector::operator|(const SVector& rhs) const
 {
-    UVector v;
-    v.storage = _mm_mul_ps(storage, rhs.storage);
-    v.storage = _mm_hadd_ps(v.storage, v.storage);  // {0.0f + z, y + x, 0.0f + z, y + x }
-    v.storage = _mm_hadd_ps(v.storage, v.storage);  // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
-    return v.components[U_INDEX];
+    __m128 value = _mm_mul_ps(storage, rhs.storage);
+    value = _mm_hadd_ps(value, value);  // {0.0f + z, y + x, 0.0f + z, y + x }
+    value = _mm_hadd_ps(value, value);  // {0.0f + z + y + x, y + x + 0.0f + z, 0.0f + z + y + x, y + x + 0.0f + z}
+
+    // extract the lowest component from register
+    const float result = _mm_cvtss_f32(value);
+    
+    return result;
 }
 
 /*            Cross Product            */
