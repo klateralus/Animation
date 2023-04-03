@@ -4,6 +4,7 @@
 #include <iomanip>
 
 const SVector SVector::ZeroVector{ 0.f };
+const int SVector::MoveMaskPSTrue{ 0x0F };
 
 SVector::SVector()
 {
@@ -26,45 +27,21 @@ SVector::SVector(const __m128& value)
 }
 
 /*            Equality            */
-bool SVector::operator==(const SVector& rhs)
+bool SVector::operator==(const SVector& rhs) const
 {
-    UVector result;
-    result.storage = _mm_cmpeq_ps(storage, rhs.storage);
-    return result.components[X_INDEX] != 0.f
-    && result.components[Y_INDEX] != 0.f
-    && result.components[Z_INDEX] != 0.f
-    && result.components[U_INDEX] != 0.f;
-}
-
-bool operator==(const SVector& lhs, const SVector& rhs)
-{
-    UVector result;
-    result.storage = _mm_cmpeq_ps(lhs.storage, rhs.storage);
-    return result.components[SVector::X_INDEX] != 0.f
-    && result.components[SVector::Y_INDEX] != 0.f
-    && result.components[SVector::Z_INDEX] != 0.f
-    && result.components[SVector::U_INDEX] != 0.f;
+    const __m128 result = _mm_cmpeq_ps(storage, rhs.storage);
+    const int masked_result = _mm_movemask_ps(result);
+    const bool is_equal = masked_result == MoveMaskPSTrue; 
+    return is_equal;
 }
 
 /*            Inequality            */
-bool SVector::operator!=(const SVector& rhs)
+bool SVector::operator!=(const SVector& rhs) const
 {
-    UVector result;
-    result.storage = _mm_cmpneq_ps(storage, rhs.storage);
-    return result.components[X_INDEX] != 0.f
-    || result.components[Y_INDEX] != 0.f
-    || result.components[Z_INDEX] != 0.f
-    || result.components[U_INDEX] != 0.f;
-}
-
-bool operator!=(const SVector& lhs, const SVector& rhs)
-{
-    UVector result;
-    result.storage = _mm_cmpneq_ps(lhs.storage, rhs.storage);
-    return result.components[SVector::X_INDEX] != 0.f
-    || result.components[SVector::Y_INDEX] != 0.f
-    || result.components[SVector::Z_INDEX] != 0.f
-    || result.components[SVector::U_INDEX] != 0.f;
+    const __m128 result = _mm_cmpeq_ps(storage, rhs.storage);
+    const int masked = _mm_movemask_ps(result);
+    const bool is_unequal = masked != MoveMaskPSTrue;
+    return is_unequal;
 }
 
 /*            Addition            */

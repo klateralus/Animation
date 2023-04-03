@@ -66,14 +66,17 @@ struct SVector
     void ResetUnusedAxis() { components[U_INDEX] = 0.f; }
 
     const static SVector ZeroVector;
+
+    // hexadecimal value of '15' and binary '00001111' that corresponds to a 'true' result from '_mm_movemask_ps'  
+    const static int MoveMaskPSTrue;
     
     // Equality
-    bool operator==(const SVector& rhs);
-    friend bool operator==(const SVector& lhs, const SVector& rhs);
+    bool operator==(const SVector& rhs) const;
+    //friend bool operator==(const SVector& lhs, const SVector& rhs);
     
     // Inequality
-    bool operator!=(const SVector& rhs);
-    friend bool operator!=(const SVector& lhs, const SVector& rhs);
+    bool operator!=(const SVector& rhs) const;
+    //friend bool operator!=(const SVector& lhs, const SVector& rhs);
     
     // Addition
     SVector& operator+=(const SVector& rhs);
