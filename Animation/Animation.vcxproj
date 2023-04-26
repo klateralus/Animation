@@ -132,9 +132,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Quaternion\Quaternion.cpp" />
     <ClCompile Include="Vector\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Quaternion\Quaternion.h" />
     <ClInclude Include="Vector\Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
